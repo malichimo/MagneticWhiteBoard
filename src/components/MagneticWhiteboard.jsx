@@ -50,9 +50,21 @@ export default function MagneticWhiteboard() {
   const boardRef = useRef(null);
 
   // Intro overlay shown once (dismiss stored in localStorage)
-  const [showIntro, setShowIntro] = useState(() => localStorage.getItem("mag-whiteboard-intro-shown") !== "1");
+  // Read localStorage inside useEffect to avoid runtime errors in environments
+  // where window/localStorage may be unavailable during initial render.
+  const [showIntro, setShowIntro] = useState(false);
+  useEffect(() => {
+    try {
+      const shown = typeof window !== "undefined" && localStorage.getItem("mag-whiteboard-intro-shown") === "1";
+      setShowIntro(!shown);
+    } catch {
+      setShowIntro(false);
+    }
+  }, []);
   const dismissIntro = () => {
-    try { localStorage.setItem("mag-whiteboard-intro-shown", "1"); } catch {}
+    try {
+      if (typeof window !== "undefined") localStorage.setItem("mag-whiteboard-intro-shown", "1");
+    } catch {}
     setShowIntro(false);
   };
 
