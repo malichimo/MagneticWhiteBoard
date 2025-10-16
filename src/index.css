@@ -1,0 +1,16 @@
+/* src/index.css */
+/* stylelint-disable at-rule-no-unknown */
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+@media print {
+  body {
+    background: white;
+  }
+}
