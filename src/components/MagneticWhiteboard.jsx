@@ -49,6 +49,13 @@ export default function MagneticWhiteboard() {
   const [selectedColor, setSelectedColor] = useState(1); // default Blue
   const boardRef = useRef(null);
 
+  // Intro overlay shown once (dismiss stored in localStorage)
+  const [showIntro, setShowIntro] = useState(() => localStorage.getItem("mag-whiteboard-intro-shown") !== "1");
+  const dismissIntro = () => {
+    try { localStorage.setItem("mag-whiteboard-intro-shown", "1"); } catch {}
+    setShowIntro(false);
+  };
+
   // Load from localStorage
   useEffect(() => {
     try {
@@ -173,6 +180,31 @@ export default function MagneticWhiteboard() {
 
   return (
     <div className="w-full h-full flex flex-col bg-slate-50 text-slate-900">
+      {/* Intro overlay (hidden when dismissed) */}
+      {showIntro && (
+        <div className="print:hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-6 text-slate-900">
+            <h2 className="text-lg font-semibold mb-2">Magnetic Whiteboard — Quick Start</h2>
+            <p className="text-sm mb-3">
+              I built you a draggable “magnetic whiteboard” app with:
+            </p>
+            <ul className="list-disc list-inside text-sm mb-3 space-y-1">
+              <li>Paste-to-create magnets (one name per line or comma-separated)</li>
+              <li>Drag & drop (mouse or touch), optional snap-to-grid</li>
+              <li>Color picking for quick team grouping</li>
+              <li>Add editable labels for team names</li>
+              <li>Save/Load board state (JSON) + autosave to your browser</li>
+              <li>Lock toggle to prevent accidental moves</li>
+              <li>Print button (hides the toolbar and fills the page for clean printouts)</li>
+            </ul>
+            <p className="text-sm mb-4">Try this flow: Paste your roster → pick a color → “Add Magnets”. Drag names into teams, add labels as headers. Toggle Lock → Print when ready.</p>
+            <div className="flex justify-end">
+              <button onClick={dismissIntro} className="px-4 py-2 bg-blue-600 text-white rounded-xl">Got it</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="print:hidden sticky top-0 z-20 w-full border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="max-w-6xl mx-auto p-3 flex flex-wrap items-center gap-3">
