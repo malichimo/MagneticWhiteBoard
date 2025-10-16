@@ -1,10 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Upload, Printer, Plus, Trash2, Grid, Lock, Unlock } from "lucide-react";
 
 /**
  * Magnetic Whiteboard Team Builder
- * ------------------------------------------------------------
  * Paste a list of names to create draggable "magnets" and arrange teams.
  * - Drag anywhere on the board (mouse or touch)
  * - Snap-to-grid (optional)
@@ -12,8 +11,6 @@ import { Download, Upload, Printer, Plus, Trash2, Grid, Lock, Unlock } from "luc
  * - Add labels (for team names) just like sticky notes
  * - Save / Load (JSON) + auto-save to localStorage
  * - Print friendly (toolbar hidden on print; board fills page)
- *
- * Tailwind is available automatically in Canvas. No import needed.
  */
 
 const COLORS = [
@@ -49,25 +46,6 @@ export default function MagneticWhiteboard() {
   const [selectedColor, setSelectedColor] = useState(1); // default Blue
   const boardRef = useRef(null);
 
-  // Intro overlay shown once (dismiss stored in localStorage)
-  // Read localStorage inside useEffect to avoid runtime errors in environments
-  // where window/localStorage may be unavailable during initial render.
-  const [showIntro, setShowIntro] = useState(false);
-  useEffect(() => {
-    try {
-      const shown = typeof window !== "undefined" && localStorage.getItem("mag-whiteboard-intro-shown") === "1";
-      setShowIntro(!shown);
-    } catch {
-      setShowIntro(false);
-    }
-  }, []);
-  const dismissIntro = () => {
-    try {
-      if (typeof window !== "undefined") localStorage.setItem("mag-whiteboard-intro-shown", "1");
-    } catch {}
-    setShowIntro(false);
-  };
-
   // Load from localStorage
   useEffect(() => {
     try {
@@ -88,7 +66,6 @@ export default function MagneticWhiteboard() {
   const addMagnets = () => {
     if (!pasteText.trim()) return;
     const names = parseNames(pasteText);
-    const rect = boardRef.current?.getBoundingClientRect?.();
     const baseX = 24;
     const baseY = 24;
     const next = names.map((n, i) => ({
@@ -185,65 +162,33 @@ export default function MagneticWhiteboard() {
   const toggle = (key) => setBoard((b) => ({ ...b, settings: { ...b.settings, [key]: !b.settings[key] } }));
 
   const printBoard = () => {
-    // Lock to prevent accidental drags while printing
     if (!board.settings.locked) toggle("locked");
     setTimeout(() => window.print(), 50);
   };
 
   return (
     <div className="w-full h-full flex flex-col bg-slate-50 text-slate-900">
-      {/* Intro overlay (hidden when dismissed) */}
-      {showIntro && (
-        <div className="print:hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-6 text-slate-900">
-            <h2 className="text-lg font-semibold mb-2">Magnetic Whiteboard — Quick Start</h2>
-            <p className="text-sm mb-3">
-              I built you a draggable “magnetic whiteboard” app with:
-            </p>
-            <ul className="list-disc list-inside text-sm mb-3 space-y-1">
-              <li>Paste-to-create magnets (one name per line or comma-separated)</li>
-              <li>Drag & drop (mouse or touch), optional snap-to-grid</li>
-              <li>Color picking for quick team grouping</li>
-              <li>Add editable labels for team names</li>
-              <li>Save/Load board state (JSON) + autosave to your browser</li>
-              <li>Lock toggle to prevent accidental moves</li>
-              <li>Print button (hides the toolbar and fills the page for clean printouts)</li>
-            </ul>
-            <p className="text-sm mb-4">Try this flow: Paste your roster → pick a color → “Add Magnets”. Drag names into teams, add labels as headers. Toggle Lock → Print when ready.</p>
-            <div className="flex justify-end">
-              <button onClick={dismissIntro} className="px-4 py-2 bg-blue-600 text-white rounded-xl">Got it</button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Toolbar */}
       <div className="print:hidden sticky top-0 z-20 w-full border-b bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/60">
         <div className="max-w-6xl mx-auto p-3 flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
             <button
               onClick={() => toggle("grid")}
-              className={`px-3 py-2 rounded-xl border text-sm flex items-center gap-2 ${
-                board.settings.grid ? "bg-slate-100" : "bg-white"
-              }`}
+              className={`px-3 py-2 rounded-xl border text-sm flex items-center gap-2 ${board.settings.grid ? "bg-slate-100" : "bg-white"}`}
               title="Toggle grid"
             >
               <Grid className="w-4 h-4" /> Grid
             </button>
             <button
               onClick={() => toggle("snap")}
-              className={`px-3 py-2 rounded-xl border text-sm ${
-                board.settings.snap ? "bg-slate-100" : "bg-white"
-              }`}
+              className={`px-3 py-2 rounded-xl border text-sm ${board.settings.snap ? "bg-slate-100" : "bg-white"}`}
               title="Toggle snap to grid"
             >
               Snap
             </button>
             <button
               onClick={() => toggle("locked")}
-              className={`px-3 py-2 rounded-xl border text-sm flex items-center gap-2 ${
-                board.settings.locked ? "bg-slate-100" : "bg-white"
-              }`}
+              className={`px-3 py-2 rounded-xl border text-sm flex items-center gap-2 ${board.settings.locked ? "bg-slate-100" : "bg-white"}`}
               title="Lock/unlock dragging"
             >
               {board.settings.locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />} {board.settings.locked ? "Locked" : "Unlocked"}
@@ -266,9 +211,7 @@ export default function MagneticWhiteboard() {
                 <button
                   key={c.name}
                   onClick={() => setSelectedColor(i)}
-                  className={`w-6 h-6 rounded-full border ${c.bg} ${
-                    selectedColor === i ? "ring-2 ring-offset-2 ring-slate-600" : ""
-                  }`}
+                  className={`w-6 h-6 rounded-full border ${c.bg} ${selectedColor === i ? "ring-2 ring-offset-2 ring-slate-600" : ""}`}
                   aria-label={`Select ${c.name}`}
                 />
               ))}
